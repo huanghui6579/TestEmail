@@ -3,6 +3,7 @@ package com.example.testemail;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.testemail.dao.MailAccountDao;
 import com.example.testemail.model.MailAccount;
 
 import android.app.Activity;
@@ -19,15 +20,29 @@ import android.widget.TextView;
 public class AcccountListActivity extends Activity {
 	private ListView lvAccounts;
 	private List<MailAccount> accounts;
+	private Context mContext;
+	
+	private EmailAccountAdapter adapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_account_list);
 		
+		mContext = this;
+		
 		lvAccounts = (ListView) findViewById(R.id.lv_account);
 		
 		accounts = new ArrayList<MailAccount>();
+		
+		initData();
+	}
+	
+	private void initData() {
+		MailAccountDao accountDao = new MailAccountDao(mContext);
+		accounts = accountDao.listAccount();
+		adapter = new EmailAccountAdapter(mContext, accounts);
+		lvAccounts.setAdapter(adapter);
 	}
 	
 	class EmailAccountAdapter extends BaseAdapter {

@@ -1,5 +1,8 @@
 package com.example.testemail.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.testemail.model.MailAccount;
 import com.example.testemail.util.DbHelper;
 
@@ -101,5 +104,21 @@ public class MailAccountDao {
 			db.close();
 		}
 		return null;
+	}
+	
+	public List<MailAccount> listAccount() {
+		String sql = "select username, password, emailAddress, mailType from t_mail";
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		Cursor cursor = db.rawQuery(sql, null);
+		List<MailAccount> accounts = new ArrayList<MailAccount>();
+		while(cursor.moveToNext()) {
+			MailAccount account = new MailAccount();
+			account.setUsername(cursor.getString(cursor.getColumnIndex("username")));
+			account.setPassword(cursor.getString(cursor.getColumnIndex("password")));
+			account.setMailType(cursor.getString(cursor.getColumnIndex("mailType")));
+			account.setEmailAddress(cursor.getString(cursor.getColumnIndex("emailAddress")));
+			accounts.add(account);
+		}
+		return accounts;
 	}
 }

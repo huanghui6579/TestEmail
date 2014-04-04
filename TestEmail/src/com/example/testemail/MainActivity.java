@@ -7,12 +7,16 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
 
+import com.example.testemail.R.string;
+import com.example.testemail.dao.MailAccountDao;
 import com.example.testemail.model.MailAccount;
 import com.example.testemail.util.MailServerUtil;
 import com.example.testemail.util.ThreadPool;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -28,6 +32,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	private static final String TAG = "MainActivity";
+	private Context mContext;
 	
 	private AutoCompleteTextView etAddress;
 	private EditText etPassword;
@@ -47,7 +52,13 @@ public class MainActivity extends Activity {
 			switch (msg.what) {
 			case 1:	//登录成功
 				makeShortToast("登录成功");
-				Store store = (Store) msg.obj;
+				MailAccountDao accountDao = new MailAccountDao(mContext);
+				MailAccount account = (MailAccount) msg.obj;
+				account.getMailType();
+				accountDao.add(account);
+				Intent intent = new Intent(mContext, AcccountListActivity.class);
+				startActivity(intent);
+				finish();
 				break;
 			case -1:
 				String error = msg.getData().getString("error");
@@ -67,6 +78,8 @@ public class MainActivity extends Activity {
 		etAddress = (AutoCompleteTextView) findViewById(R.id.et_emaill_address);
 		etPassword = (EditText) findViewById(R.id.et_password);
 		btnAdd = (Button) findViewById(R.id.btn_add);
+		
+		mContext = this;
 		
 		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
 		etAddress.setAdapter(adapter);
@@ -170,8 +183,8 @@ public class MainActivity extends Activity {
 					store = login(account);
 					pDialog.dismiss();
 					if(store != null) {	//登录成功
-						msg.obj = store;
 						msg.what = 1;
+						msg.obj = account;
 						handler.sendMessage(msg);
 					} else {
 						msg.getData().putString("error", "登录失败，请重试！");
