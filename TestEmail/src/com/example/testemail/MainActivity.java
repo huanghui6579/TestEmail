@@ -11,10 +11,7 @@ import com.example.testemail.model.MailAccount;
 import com.example.testemail.util.MailServerUtil;
 import com.example.testemail.util.ThreadPool;
 
-import android.R.string;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
@@ -50,6 +47,7 @@ public class MainActivity extends Activity {
 			switch (msg.what) {
 			case 1:	//登录成功
 				makeShortToast("登录成功");
+				Store store = (Store) msg.obj;
 				break;
 			case -1:
 				String error = msg.getData().getString("error");
@@ -172,7 +170,9 @@ public class MainActivity extends Activity {
 					store = login(account);
 					pDialog.dismiss();
 					if(store != null) {	//登录成功
-						handler.sendEmptyMessage(1);
+						msg.obj = store;
+						msg.what = 1;
+						handler.sendMessage(msg);
 					} else {
 						msg.getData().putString("error", "登录失败，请重试！");
 						msg.what = -1;
@@ -210,5 +210,5 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-
+	
 }

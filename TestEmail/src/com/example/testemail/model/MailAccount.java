@@ -7,6 +7,7 @@ public class MailAccount {
 	private String password;
 	private String emailAddress;
 	private String mailType;
+	private int resId;
 	private MailInfo mailInfo;
 
 	public MailInfo getMailInfo() {
@@ -63,5 +64,13 @@ public class MailAccount {
 		if(username == null) {
 			username = emailAddress;
 		}
+	}
+
+	public int getResId() {
+		return resId;
+	}
+
+	public void setResId(int resId) {
+		this.resId = resId;
 	}
 }
