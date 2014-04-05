@@ -15,8 +15,8 @@ public class DbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		String sql = "create table t_mail ("
-				+ "_id integer parmary key autoincrement, username text, password text, emailAddress text, "
-				+ "mailType text)";
+				+ "_id integer primary key autoincrement, username text, password text, emailAddress text, "
+				+ "mailType text, resId integer, unReadCount integer default 0)";
 		db.execSQL(sql);
 		
 	}

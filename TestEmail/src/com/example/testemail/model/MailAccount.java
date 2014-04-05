@@ -8,6 +8,7 @@ public class MailAccount {
 	private String emailAddress;
 	private String mailType;
 	private int resId;
+	private int unReadCount;
 	private MailInfo mailInfo;
 
 	public MailInfo getMailInfo() {
@@ -17,20 +18,19 @@ public class MailAccount {
 		return mailInfo;
 	}
 
+	public int getUnReadCount() {
+		return unReadCount;
+	}
+
+	public void setUnReadCount(int unReadCount) {
+		this.unReadCount = unReadCount;
+	}
+
 	public void setMailInfo(MailInfo mailInfo) {
 		this.mailInfo = mailInfo;
 	}
 
 	public String getMailType() {
-		if(mailType == null || "".equals(mailType)) {
-			if(getEmailAddress() == null) {
-				setEmailAddress(username);
-			}
-			String subfix = emailAddress.substring(emailAddress.lastIndexOf("@") + 1);
-			if(MailServerUtil.getTypeMap().containsKey(subfix)) {
-				mailType = (String) MailServerUtil.getTypeMap().get(subfix);
-			}
-		}
 		return mailType;
 	}
 
@@ -44,7 +44,6 @@ public class MailAccount {
 
 	public void setUsername(String username) {
 		this.username = username;
-		emailAddress = username;
 	}
 
 	public String getPassword() {
@@ -61,9 +60,7 @@ public class MailAccount {
 
 	public void setEmailAddress(String emailAddress) {
 		this.emailAddress = emailAddress;
-		if(username == null) {
-			username = emailAddress;
-		}
+		this.mailType = MailServerUtil.getMailType(emailAddress);
 	}
 
 	public int getResId() {

@@ -3,6 +3,7 @@ package com.example.testemail;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
@@ -52,10 +53,6 @@ public class MainActivity extends Activity {
 			switch (msg.what) {
 			case 1:	//登录成功
 				makeShortToast("登录成功");
-				MailAccountDao accountDao = new MailAccountDao(mContext);
-				MailAccount account = (MailAccount) msg.obj;
-				account.getMailType();
-				accountDao.add(account);
 				Intent intent = new Intent(mContext, AcccountListActivity.class);
 				startActivity(intent);
 				finish();
@@ -73,88 +70,97 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
 		
-		etAddress = (AutoCompleteTextView) findViewById(R.id.et_emaill_address);
-		etPassword = (EditText) findViewById(R.id.et_password);
-		btnAdd = (Button) findViewById(R.id.btn_add);
-		
-		mContext = this;
-		
-		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
-		etAddress.setAdapter(adapter);
-		
-		etAddress.addTextChangedListener(new TextWatcher() {
+		MailAccountDao accountDao = new MailAccountDao(this);
+		if(accountDao.hasMailAccount()) {
+			Intent intent = new Intent(this, AcccountListActivity.class);
+			startActivity(intent);
+			finish();
+		} else {
+			setContentView(R.layout.activity_main);
 			
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if(s != null && s.length() > 0) {
-					StringBuilder sb = new StringBuilder(s);
-					if(sb.indexOf("@") == -1) {	//还没有输入“@”
-						sb.append("@");
-						adapter.clear();
-						for(String type : maileTypes) {
-							sb.append(type);
-							adapter.add(sb.toString());
-							sb.delete(sb.length() - type.length(), sb.length());
+			etAddress = (AutoCompleteTextView) findViewById(R.id.et_emaill_address);
+			etPassword = (EditText) findViewById(R.id.et_password);
+			btnAdd = (Button) findViewById(R.id.btn_add);
+			
+			mContext = this;
+			
+			adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
+			etAddress.setAdapter(adapter);
+			
+			etAddress.addTextChangedListener(new TextWatcher() {
+				
+				@Override
+				public void onTextChanged(CharSequence s, int start, int before, int count) {
+					if(s != null && s.length() > 0) {
+						StringBuilder sb = new StringBuilder(s);
+						if(sb.indexOf("@") == -1) {	//还没有输入“@”
+							sb.append("@");
+							adapter.clear();
+							for(String type : maileTypes) {
+								sb.append(type);
+								adapter.add(sb.toString());
+								sb.delete(sb.length() - type.length(), sb.length());
+							}
+							adapter.notifyDataSetChanged();
 						}
-						adapter.notifyDataSetChanged();
 					}
 				}
-			}
-			
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				// TODO Auto-generated method stub
 				
-			}
-			
-			@Override
-			public void afterTextChanged(Editable s) {
-				String pwd = etPassword.getText().toString();
-				String address = s.toString();
-				if(pwd == null || "".equals(pwd)) {
-					btnAdd.setEnabled(false);
-				} else if(address == null || "".equals(address)) {
-					btnAdd.setEnabled(false);
-				} else if(!validateEmailAddress(address)){
-					btnAdd.setEnabled(false);
-				} else {
-					btnAdd.setEnabled(true);
+				@Override
+				public void beforeTextChanged(CharSequence s, int start, int count,
+						int after) {
+					// TODO Auto-generated method stub
+					
 				}
-				emailAddress = address;
-			}
-		});
+				
+				@Override
+				public void afterTextChanged(Editable s) {
+					String pwd = etPassword.getText().toString();
+					String address = s.toString();
+					if(pwd == null || "".equals(pwd)) {
+						btnAdd.setEnabled(false);
+					} else if(address == null || "".equals(address)) {
+						btnAdd.setEnabled(false);
+					} else if(!validateEmailAddress(address)){
+						btnAdd.setEnabled(false);
+					} else {
+						btnAdd.setEnabled(true);
+					}
+					emailAddress = address;
+				}
+			});
+			
+			etPassword.addTextChangedListener(new TextWatcher() {
+				
+				@Override
+				public void onTextChanged(CharSequence s, int start, int before, int count) {
+					
+				}
+				
+				@Override
+				public void beforeTextChanged(CharSequence s, int start, int count,
+						int after) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void afterTextChanged(Editable s) {
+					String pwd = s.toString();
+					String address = etAddress.getText().toString();
+					if(pwd == null || "".equals(pwd)) {
+						btnAdd.setEnabled(false);
+					} else if(address == null || "".equals(address)) {
+						btnAdd.setEnabled(false);
+					} else {
+						btnAdd.setEnabled(true);
+					}
+					password = pwd;
+				}
+			});
+		}
 		
-		etPassword.addTextChangedListener(new TextWatcher() {
-			
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				
-			}
-			
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void afterTextChanged(Editable s) {
-				String pwd = s.toString();
-				String address = etAddress.getText().toString();
-				if(pwd == null || "".equals(pwd)) {
-					btnAdd.setEnabled(false);
-				} else if(address == null || "".equals(address)) {
-					btnAdd.setEnabled(false);
-				} else {
-					btnAdd.setEnabled(true);
-				}
-				password = pwd;
-			}
-		});
 	}
 	
 	private boolean validateEmailAddress(String address) {
@@ -177,14 +183,19 @@ public class MainActivity extends Activity {
 				MailAccount account = new MailAccount();
 				account.setEmailAddress(emailAddress);
 				account.setPassword(password);
+				account.setUsername(emailAddress);
+				account.setResId(MailServerUtil.getResId(account.getMailType()));
 				Store store = null;
 				Message msg = handler.obtainMessage();
 				try {
 					store = login(account);
 					pDialog.dismiss();
 					if(store != null) {	//登录成功
+						MailAccountDao accountDao = new MailAccountDao(mContext);
+						Folder folder = store.getFolder(MailServerUtil.INBOX);
+						account.setUnReadCount(folder.getUnreadMessageCount());
+						accountDao.add(account);
 						msg.what = 1;
-						msg.obj = account;
 						handler.sendMessage(msg);
 					} else {
 						msg.getData().putString("error", "登录失败，请重试！");

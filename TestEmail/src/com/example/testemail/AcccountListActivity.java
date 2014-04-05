@@ -90,7 +90,7 @@ public class AcccountListActivity extends Activity {
 			MailAccount account = list.get(position);
 			holder.ivEmailIcon.setImageResource(account.getResId());
 			holder.tvEmailAddress.setText(account.getEmailAddress());
-			String count = String.format(getString(R.string.email_count), 100);
+			String count = String.format(getString(R.string.email_count), account.getUnReadCount());
 			holder.tvEmailCount.setText(count);
 					
 			return convertView;

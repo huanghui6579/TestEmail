@@ -5,9 +5,11 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
+import javax.mail.Folder;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 
+import com.example.testemail.R;
 import com.example.testemail.model.MailAccount;
 import com.example.testemail.model.MailInfo;
 
@@ -30,9 +32,12 @@ public class MailServerUtil {
 	public static Map<String, MailInfo> mailMap = null;
 	private static Map<String, String> typeMap = null;
 	
+	private static Map<String, Integer> resMap = null;
+	
+	public static final String INBOX = "INBOX";
+	
 	static {
 		mailMap = new HashMap<String, MailInfo>();
-		
 		//sina mail pop3
 //		MailInfo mailInfo = new MailInfo("smtp.sina.com", "pop.sina.com", MailInfo.RECEIVE_TYPE_POP3, false);
 //		mailMap.put(MAIL_SINA, mailInfo);
@@ -115,6 +120,17 @@ public class MailServerUtil {
 		typeMap.put("yahoo.com", MAIL_YAHOO);
 		typeMap.put("hotmail.com", MAIL_HOTMAIL);
 		typeMap.put("gmail.com", MAIL_GMAIL);
+		
+		resMap = new HashMap<String, Integer>();
+		resMap.put(MAIL_SINA, R.drawable.icon_sina);
+		resMap.put(MAIL_SINA_VIP, R.drawable.icon_sina);
+		resMap.put(MAIL_SOHU, R.drawable.icon_sohu);
+		resMap.put(MAIL_126, R.drawable.icon_163);
+		resMap.put(MAIL_163, R.drawable.icon_163);
+		resMap.put(MAIL_QQ, R.drawable.icon_qq);
+		resMap.put(MAIL_YAHOO, R.drawable.icon_yahoo);
+		resMap.put(MAIL_HOTMAIL, R.drawable.icon_hotmail);
+		resMap.put(MAIL_GMAIL, R.drawable.icon_gmail);
 	}
 	
 	public static Map<String, String> getTypeMap() {
@@ -123,6 +139,26 @@ public class MailServerUtil {
 
 	public static MailInfo getMailInfo(String mailType) {
 		return mailMap.get(mailType);
+	}
+	
+	public static int getResId(String mailType) {
+		int resId = R.drawable.icon_email;
+		if(mailType != null) {
+			resId = resMap.get(mailType);
+		}
+		if(resId == 0) {
+			resId = R.drawable.icon_email;
+		}
+		return resId;
+	}
+	
+	public static String getMailType(String emailAddress) {
+		String mailType = null;
+		String subfix = emailAddress.substring(emailAddress.lastIndexOf("@") + 1);
+		if(getTypeMap().containsKey(subfix)) {
+			mailType = (String) getTypeMap().get(subfix);
+		}
+		return mailType;
 	}
 	
 	/**
