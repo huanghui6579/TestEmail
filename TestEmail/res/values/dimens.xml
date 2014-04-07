@@ -7,5 +7,7 @@
     <dimen name="mail_address_text_size">18sp</dimen>
     <dimen name="list_view_padding_left">5dp</dimen>
     <dimen name="list_view_padding_top">10dp</dimen>
+    
+    <dimen name="mail_title_size">18sp</dimen>
 
 </resources>

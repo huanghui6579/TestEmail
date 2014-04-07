@@ -62,11 +62,11 @@ public class MailAccountDao {
 	 * 添加邮箱账号
 	 */
 	public void update(MailAccount account) {
-		String sql = "update t_mail_account set password = ?";
+		String sql = "update t_mail_account set password = ?, unReadCount = ?";
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		db.beginTransaction();
 		try {
-			String[] args = {account.getPassword()};
+			String[] args = {account.getPassword(), String.valueOf(account.getUnReadCount())};
 			db.execSQL(sql, args);
 			db.setTransactionSuccessful();
 		} catch (SQLException e) {

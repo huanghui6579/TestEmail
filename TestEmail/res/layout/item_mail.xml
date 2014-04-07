@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="@dimen/list_view_padding_left"
+    android:paddingBottom="@dimen/list_view_padding_left" >
+    <ImageView 
+        android:id="@+id/iv_read_flag"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@drawable/mail_readed"/>
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="@dimen/list_view_padding_left">
+        <RelativeLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:gravity="center_vertical">
+	        <TextView 
+	            android:id="@+id/tv_sendDate"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_alignParentRight="true"
+	            android:layout_centerVertical="true"/>
+	        <TextView 
+	            android:id="@+id/tv_title"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:textSize="@dimen/mail_title_size"
+	            android:textColor="@color/mail_title_gray"
+	            android:layout_toLeftOf="@id/tv_sendDate"
+	            android:layout_centerVertical="true"/>
+	        
+	    </RelativeLayout>
+	    
+	    <TextView 
+	        android:id="@+id/tv_desc"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:maxLines="5"
+	        android:textColor="@color/gray"/>
+    </LinearLayout>
+
+</LinearLayout>

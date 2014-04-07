@@ -53,7 +53,9 @@ public class AcccountListActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				MailAccount account = accounts.get(position);
-//				Intent intent = new Intent(mContext, cls);
+				Intent intent = new Intent(mContext, MailListActivity.class);
+				intent.putExtra("mailAccount", account);
+				startActivity(intent);
 			}
 		});
 	}
@@ -68,7 +70,10 @@ public class AcccountListActivity extends Activity {
 		if(!accounts.isEmpty()) {
 			accounts.clear();
 		}
-		accounts.addAll(accountDao.listAccount());
+		List<MailAccount> temp = accountDao.listAccount();
+		if(temp != null && temp.size() > 0) {
+			accounts.addAll(temp);
+		}
 		adapter.notifyDataSetChanged();
 	}
 	

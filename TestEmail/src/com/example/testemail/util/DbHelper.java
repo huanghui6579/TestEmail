@@ -23,7 +23,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		 * 	mailNumber;	//邮件序号                  
 		 	mailSize;	//邮件大小                  
 			subject;	//主题                    
-			from;	//发件人                   
+			fromAddress;	//发件人                   
 			sendDate;	//发送日期              
 			priority;	//邮件优先级             
 			content;	//邮件正文                  
@@ -33,9 +33,9 @@ public class DbHelper extends SQLiteOpenHelper {
 			isContainerAttachment;	//是否包含附件
 		 */
 		sql = "create table t_mail ("
-				+ "mailNumber integer, mailSize integer, subject text, from text, receiveAddress text, sendDate text, "
+				+ "mailNumber integer, mailSize integer, subject text, fromAddress text, fromName text, receiveAddress text, sendDate text, "
 				+ "priority text, content text, emailAddress text, isSeen integer default 0, isReplySign integer default 0, "
-				+ "isContainerAttachment integer default 0, primary key(mailNumber, emailAddress)";
+				+ "isContainerAttachment integer default 0, primary key(mailNumber, emailAddress))";
 		db.execSQL(sql);
 		
 		/*
@@ -44,7 +44,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			fileName;   
 			fileSize;     
 		 */
-		sql = "create table t_attachment (_id integer autoincrement, fileSize integer, emailNumber integer, emailAddress text, fileName text, primary key(_id)";
+		sql = "create table t_attachment (_id integer primary key autoincrement, fileSize integer, emailNumber integer, emailAddress text, fileName text)";
 		db.execSQL(sql);
 		
 	}

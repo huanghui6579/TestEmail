@@ -12,7 +12,8 @@ public class Mail implements Parcelable {
 	private int mailNumber;	//邮件序号
 	private long mailSize;	//邮件大小,B单位
 	private String subject;	//主题
-	private String from;	//发件人
+	private String fromAddress;	//发件人地址
+	private String fromName;	//发件人名称
 	private String receiveAddress;	//收件人地址
 	private String sendDate;	//发送日期
 	private String priority;	//邮件优先级
@@ -51,12 +52,20 @@ public class Mail implements Parcelable {
 		this.subject = subject;
 	}
 
-	public String getFrom() {
-		return from;
+	public String getFromAddress() {
+		return fromAddress;
 	}
 
-	public void setFrom(String from) {
-		this.from = from;
+	public void setFromAddress(String fromAddress) {
+		this.fromAddress = fromAddress;
+	}
+
+	public String getFromName() {
+		return fromName;
+	}
+
+	public void setFromName(String fromName) {
+		this.fromName = fromName;
 	}
 
 	public String getSendDate() {
@@ -143,7 +152,8 @@ public class Mail implements Parcelable {
 		mailNumber = source.readInt();
 		mailSize = source.readLong();
 		subject = source.readString();
-		from = source.readString();
+		fromAddress = source.readString();
+		fromName = source.readString();
 		receiveAddress = source.readString();
 		sendDate = source.readString();
 		priority = source.readString();
@@ -163,7 +173,8 @@ public class Mail implements Parcelable {
 		dest.writeInt(mailNumber);
 		dest.writeLong(mailSize);
 		dest.writeString(subject);
-		dest.writeString(from);
+		dest.writeString(fromAddress);
+		dest.writeString(fromName);
 		dest.writeString(receiveAddress);
 		dest.writeString(sendDate);
 		dest.writeString(priority);

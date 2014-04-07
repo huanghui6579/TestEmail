@@ -35,6 +35,7 @@ import javax.mail.internet.MimeUtility;
 import android.content.Context;
 
 import com.example.testemail.dao.AttachmentDao;
+import com.example.testemail.dao.MailAccountDao;
 import com.example.testemail.dao.MailDao;
 import com.example.testemail.model.Attachment;
 import com.example.testemail.model.Mail;
@@ -67,11 +68,13 @@ public class ReceiveMailUtil {
 	
 	private AttachmentDao attachmentDao = null;
 	private MailDao mailDao = null;
+	private MailAccountDao accountDao = null;
 	
 	private ReceiveMailUtil(Context context) {
 		this.context = context;
 		attachmentDao = new AttachmentDao(context);
 		mailDao = new MailDao(context);
+		accountDao = new MailAccountDao(context);
 	}
 	
 	private ReceiveMailUtil() {}
@@ -118,6 +121,11 @@ public class ReceiveMailUtil {
 			if(store != null & store.isConnected()) {
 				Folder folder = store.getFolder(MailServerUtil.INBOX);
 				folder.open(Folder.READ_ONLY);
+				account.setUnReadCount(folder.getUnreadMessageCount());
+				if(accountDao == null) {
+					accountDao = new MailAccountDao(context);
+				}
+				accountDao.update(account);
 				// 得到收件箱中的所有邮件,并解析  
 				parseMessage(account, getMessagesWithPage(folder, pageNum, pageSize));  
 				
@@ -167,9 +175,10 @@ public class ReceiveMailUtil {
             mail.setEmailAddress(account.getEmailAddress());
             mail.setMailNumber(msg.getMessageNumber());
             mail.setSubject(getSubject(msg));
-            mail.setFrom(getFrom(msg));
+            mail.setFromAddress(getFromAddress(msg));
+            mail.setFromName(getFromName(msg));
             mail.setReceiveAddress(getReceiveAddress(msg, null));
-            mail.setSendDate(getSentDate(msg, "yyyy-MM-dd HH:mm"));
+            mail.setSendDate(getSentDate(msg, "yyyy-MM-dd HH:mm:ss"));
             mail.setSeen(isSeen(msg));	//邮件是否已经查看
             mail.setPriority(getPriority(msg));	//邮件的优先级
             mail.setReplySign(isReplySign(msg));//是否需要回执
@@ -242,6 +251,42 @@ public class ReceiveMailUtil {
         from = person + "<" + address.getAddress() + ">";  
           
         return from;  
+    }
+    
+    /** 
+     * 获得邮件发件人 
+     * @param msg 邮件内容 
+     * @return 姓名 <Email地址> 
+     * @throws MessagingException 
+     * @throws UnsupportedEncodingException  
+     */  
+    public static String getFromName(MimeMessage msg) throws MessagingException, UnsupportedEncodingException {  
+    	Address[] froms = msg.getFrom();  
+    	if (froms.length < 1)  
+    		throw new MessagingException("没有发件人!");  
+    	
+    	InternetAddress address = (InternetAddress) froms[0];  
+    	String person = address.getPersonal();  
+    	if (person != null) {  
+    		person = decodeText(person) + " ";  
+    	}
+    	return person;
+    }
+    
+    /** 
+     * 获得邮件发件人名称
+     * @param msg 邮件内容 
+     * @return 姓名 <Email地址> 
+     * @throws MessagingException 
+     * @throws UnsupportedEncodingException  
+     */  
+    public static String getFromAddress(MimeMessage msg) throws MessagingException, UnsupportedEncodingException {  
+    	Address[] froms = msg.getFrom();  
+    	if (froms.length < 1)  
+    		throw new MessagingException("没有发件人!");  
+    	
+    	InternetAddress address = (InternetAddress) froms[0];  
+    	return address.getAddress();
     }
     
     /** 
