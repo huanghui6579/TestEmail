@@ -8,10 +8,15 @@ import com.example.testemail.model.MailAccount;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -24,25 +29,69 @@ public class AcccountListActivity extends Activity {
 	
 	private EmailAccountAdapter adapter;
 	
+	MailAccountDao accountDao;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_account_list);
+		setContentView(R.layout.activity_list);
 		
 		mContext = this;
 		
-		lvAccounts = (ListView) findViewById(R.id.lv_account);
-		
 		accounts = new ArrayList<MailAccount>();
 		
+		accountDao = new MailAccountDao(mContext);
+		
+		lvAccounts = (ListView) findViewById(R.id.listview);
+		
+		adapter = new EmailAccountAdapter(mContext, accounts);
+		lvAccounts.setAdapter(adapter);
+		
+		lvAccounts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				MailAccount account = accounts.get(position);
+//				Intent intent = new Intent(mContext, cls);
+			}
+		});
+	}
+	
+	@Override
+	protected void onResume() {
 		initData();
+		super.onResume();
 	}
 	
 	private void initData() {
-		MailAccountDao accountDao = new MailAccountDao(mContext);
-		accounts = accountDao.listAccount();
-		adapter = new EmailAccountAdapter(mContext, accounts);
-		lvAccounts.setAdapter(adapter);
+		if(!accounts.isEmpty()) {
+			accounts.clear();
+		}
+		accounts.addAll(accountDao.listAccount());
+		adapter.notifyDataSetChanged();
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_add:
+			Intent intent = new Intent(mContext, MainActivity.class);
+			intent.putExtra(MainActivity.ACTION_FLAG, MainActivity.ACTION_FLAG_ADD);
+			startActivity(intent);
+			break;
+
+		default:
+			break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 	
 	class EmailAccountAdapter extends BaseAdapter {

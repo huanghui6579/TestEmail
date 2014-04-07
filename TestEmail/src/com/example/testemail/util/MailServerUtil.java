@@ -6,8 +6,10 @@ import java.util.Properties;
 
 import javax.mail.Authenticator;
 import javax.mail.Folder;
+import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
+import javax.mail.Store;
 
 import com.example.testemail.R;
 import com.example.testemail.model.MailAccount;
@@ -35,6 +37,8 @@ public class MailServerUtil {
 	private static Map<String, Integer> resMap = null;
 	
 	public static final String INBOX = "INBOX";
+	
+	public static final int PAGE_SIZE = 20;
 	
 	static {
 		mailMap = new HashMap<String, MailInfo>();
@@ -159,6 +163,26 @@ public class MailServerUtil {
 			mailType = (String) getTypeMap().get(subfix);
 		}
 		return mailType;
+	}
+	
+	/**
+	 * 登录
+	 * @param account
+	 * @return
+	 * @throws MessagingException
+	 */
+	public static Store login(MailAccount account) throws MessagingException {
+		Session session = validateAccount(account);
+		if(session == null) {
+			return null;
+		}
+		Store store = session.getStore();
+		store.connect();
+		if(!store.isConnected()) {
+			store = null;
+		}
+		return store;
+		
 	}
 	
 	/**

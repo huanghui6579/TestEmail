@@ -24,11 +24,11 @@ public class MailAccountDao {
 	 * 添加邮箱账号
 	 */
 	public void add(MailAccount account) {
-		String sql = "insert into t_mail (username, password, emailAddress, mailType, resId, unReadCount) values (?, ?, ?, ?, ?, ?)";
+		String sql = "insert into t_mail_account (username, password, emailAddress, mailType, resId, unReadCount) values (?, ?, ?, ?, ?, ?)";
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		db.beginTransaction();
 		try {
-			String[] args = {account.getUsername(), account.getPassword(), account.getEmailAddress(), account.getMailType(), String.valueOf(account.getResId()), String.valueOf(account.getUnReadCount())};
+			Object[] args = {account.getUsername(), account.getPassword(), account.getEmailAddress(), account.getMailType(), account.getResId(), account.getUnReadCount()};
 			db.execSQL(sql, args);
 			db.setTransactionSuccessful();
 		} catch (SQLException e) {
@@ -43,7 +43,7 @@ public class MailAccountDao {
 	 * 添加邮箱账号
 	 */
 	public void delete(String emailAddress) {
-		String sql = "delete from t_mail where emailAddress = ?";
+		String sql = "delete from t_mail_account where emailAddress = ?";
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		db.beginTransaction();
 		try {
@@ -62,7 +62,7 @@ public class MailAccountDao {
 	 * 添加邮箱账号
 	 */
 	public void update(MailAccount account) {
-		String sql = "update t_mail set password = ?";
+		String sql = "update t_mail_account set password = ?";
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		db.beginTransaction();
 		try {
@@ -81,7 +81,7 @@ public class MailAccountDao {
 	 * 添加邮箱账号
 	 */
 	public MailAccount getMailAccountByAddress(MailAccount account) {
-		String sql = "select username, password, mailType, resId, unReadCount from t_mail where emailAddress = ?";
+		String sql = "select username, password, mailType, resId, unReadCount from t_mail_account where emailAddress = ?";
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		Cursor cursor = null;
 		try {
@@ -109,33 +109,54 @@ public class MailAccountDao {
 	}
 	
 	public List<MailAccount> listAccount() {
-		String sql = "select username, password, emailAddress, mailType, resId, unReadCount from t_mail";
+		String sql = "select username, password, emailAddress, mailType, resId, unReadCount from t_mail_account";
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
-		Cursor cursor = db.rawQuery(sql, null);
-		List<MailAccount> accounts = new ArrayList<MailAccount>();
-		while(cursor.moveToNext()) {
-			MailAccount account = new MailAccount();
-			account.setUsername(cursor.getString(cursor.getColumnIndex("username")));
-			account.setPassword(cursor.getString(cursor.getColumnIndex("password")));
-			account.setMailType(cursor.getString(cursor.getColumnIndex("mailType")));
-			account.setEmailAddress(cursor.getString(cursor.getColumnIndex("emailAddress")));
-			account.setResId(cursor.getInt(cursor.getColumnIndex("resId")));
-			account.setUnReadCount(cursor.getInt(cursor.getColumnIndex("unReadCount")));
-			accounts.add(account);
+		List<MailAccount> accounts = null;
+		Cursor cursor = null;
+		try {
+			cursor = db.rawQuery(sql, null);
+			accounts = new ArrayList<MailAccount>();
+			while(cursor.moveToNext()) {
+				MailAccount account = new MailAccount();
+				account.setUsername(cursor.getString(cursor.getColumnIndex("username")));
+				account.setPassword(cursor.getString(cursor.getColumnIndex("password")));
+				account.setMailType(cursor.getString(cursor.getColumnIndex("mailType")));
+				account.setEmailAddress(cursor.getString(cursor.getColumnIndex("emailAddress")));
+				account.setResId(cursor.getInt(cursor.getColumnIndex("resId")));
+				account.setUnReadCount(cursor.getInt(cursor.getColumnIndex("unReadCount")));
+				accounts.add(account);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(cursor != null) {
+				cursor.close();
+			}
+			db.close();
 		}
 		return accounts;
 	}
 	
 	public boolean hasMailAccount() {
-		String sql = "select count(_id) from t_mail";
+		String sql = "select count(_id) from t_mail_account";
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
-		Cursor cursor = db.rawQuery(sql, null);
-		int count = 0;
-		if(cursor.moveToFirst()) {
-			count = cursor.getInt(0);
-		}
-		if(count > 0) {
-			return true;
+		Cursor cursor = null;
+		try {
+			cursor = db.rawQuery(sql, null);
+			int count = 0;
+			if(cursor.moveToFirst()) {
+				count = cursor.getInt(0);
+			}
+			if(count > 0) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(cursor != null) {
+				cursor.close();
+			}
+			db.close();
 		}
 		return false;
 	}

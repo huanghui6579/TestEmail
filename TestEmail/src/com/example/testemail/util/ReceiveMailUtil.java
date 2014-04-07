@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,38 +32,67 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 
+import android.content.Context;
+
+import com.example.testemail.dao.AttachmentDao;
+import com.example.testemail.dao.MailDao;
+import com.example.testemail.model.Attachment;
+import com.example.testemail.model.Mail;
 import com.example.testemail.model.MailAccount;
 
-public class ReceiveMail {
-	public static void main(String[] args) {
-		MailAccount account = new MailAccount();
-		account.setUsername("huanghui6579@gmail.com");
-		account.setPassword("hui14795719");
-		account.setUsername("409384897@qq.com");
-		account.setPassword("huanghui");
-		account.setUsername("huanghui6579@sohu.com");
-		account.setPassword("hui14795719");
-		account.setUsername("huanghui6579@163.com");
-		account.setPassword("hui9114795719");
-		try {
-			receive(account);
-		} catch (MessagingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+public class ReceiveMailUtil {
+//	public static void main(String[] args) {
+//		MailAccount account = new MailAccount();
+//		account.setUsername("huanghui6579@gmail.com");
+//		account.setPassword("hui14795719");
+//		account.setUsername("409384897@qq.com");
+//		account.setPassword("huanghui");
+//		account.setUsername("huanghui6579@sohu.com");
+//		account.setPassword("hui14795719");
+//		account.setUsername("huanghui6579@163.com");
+//		account.setPassword("hui9114795719");
+//		try {
+//			receive(account);
+//		} catch (MessagingException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
+	
+	private static ReceiveMailUtil instance = null;
+	
+	private Context context;
+	
+	private AttachmentDao attachmentDao = null;
+	private MailDao mailDao = null;
+	
+	private ReceiveMailUtil(Context context) {
+		this.context = context;
+		attachmentDao = new AttachmentDao(context);
+		mailDao = new MailDao(context);
 	}
 	
-	public static void receive(MailAccount account) throws MessagingException, IOException {
+	private ReceiveMailUtil() {}
+	
+	public static synchronized ReceiveMailUtil getInstance(Context context) {
+		if(instance == null) {
+			instance = new ReceiveMailUtil(context);
+		}
+		return instance;
+	}
+	
+	/*public void receive(MailAccount account) throws MessagingException, IOException {
 		Session session = MailServerUtil.validateAccount(account);
 		Store store = session.getStore();
 		store.connect();
 		if(store.isConnected()) {
 			// 获得收件箱
 			Folder folder = store.getFolder("INBOX");
-			/* Folder.READ_ONLY：只读权限 
+			 Folder.READ_ONLY：只读权限 
 	         * Folder.READ_WRITE：可读可写（可以修改邮件的状态） 
-	         */  
+	           
 	        folder.open(Folder.READ_WRITE); //打开收件箱
 	        // 由于POP3协议无法获知邮件的状态,所以getUnreadMessageCount得到的是收件箱的邮件总数  
 	        System.out.println("未读邮件数: " + folder.getUnreadMessageCount());  
@@ -73,62 +104,91 @@ public class ReceiveMail {
 	        // 获得收件箱中的邮件总数  
 	        System.out.println("邮件总数: " + folder.getMessageCount());
 	        // 得到收件箱中的所有邮件,并解析  
-	        Message[] messages = folder.getMessages();
-	        Arrays.sort(messages, new Comparator<Message>() {
-
-				public int compare(Message o1, Message o2) {
-					Message m1 = (Message)o1;
-		            Message m2 = (Message)o2;
-		            if(m1.getMessageNumber() > m2.getMessageNumber()) {
-		            	return -1;
-		            }
-		            return 1;
-				}
-
-			});
-	        parseMessage(messages);  
+	        parseMessage(getMessagesWithPage(folder, 1, 20));  
 	          
 	        //释放资源  
 	        folder.close(true);  
 	        store.close();
 		}
+	}*/
+	
+	public void receive(MailAccount account, int pageNum, int pageSize) throws MessagingException, IOException {
+		try {
+			Store store = MailServerUtil.login(account);
+			if(store != null & store.isConnected()) {
+				Folder folder = store.getFolder(MailServerUtil.INBOX);
+				folder.open(Folder.READ_ONLY);
+				// 得到收件箱中的所有邮件,并解析  
+				parseMessage(account, getMessagesWithPage(folder, pageNum, pageSize));  
+				
+				//释放资源  
+				folder.close(true);  
+			}
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static List<Message> getMessagesWithPage(Folder folder, int pageNum, int pageSize) throws MessagingException {
+		Message[] messages = folder.getMessages();
+		Arrays.sort(messages, new Comparator<Message>() {
+
+			public int compare(Message o1, Message o2) {
+				Message m1 = (Message)o1;
+	            Message m2 = (Message)o2;
+	            if(m1.getMessageNumber() > m2.getMessageNumber()) {
+	            	return -1;
+	            }
+	            return 1;
+			}
+
+		});
+		List<Message> list = Arrays.asList(messages);
+		int start = (pageNum - 1) * pageSize;
+		int end = pageNum * pageSize - 1;
+		return list.subList(start, end);
 	}
 	
 	/** 
      * 解析邮件 
      * @param messages 要解析的邮件列表 
      */  
-    public static void parseMessage(Message ...messages) throws MessagingException, IOException {  
-        if (messages == null || messages.length < 1)   
+    public void parseMessage(MailAccount account, List<Message> messages) throws MessagingException, IOException {  
+        if (messages == null || messages.size() < 1)   
             throw new MessagingException("未找到要解析的邮件!");  
-          
+        if(mailDao == null) {
+        	mailDao = new MailDao(context);
+    	}
         // 解析所有邮件  
-        for (int i = 0, count = messages.length; i < count; i++) {  
-            MimeMessage msg = (MimeMessage) messages[i];  
-            buildEmlFile(msg, i);
-            System.out.println("------------------解析第" + msg.getMessageNumber() + "封邮件-------------------- ");  
-            System.out.println("主题: " + getSubject(msg));  
-            System.out.println("发件人: " + getFrom(msg));  
-            System.out.println("收件人：" + getReceiveAddress(msg, null));  
-            System.out.println("发送时间：" + getSentDate(msg, null));  
-            System.out.println("是否已读：" + isSeen(msg));  
-            System.out.println("邮件优先级：" + getPriority(msg));  
-            System.out.println("是否需要回执：" + isReplySign(msg));  
-            System.out.println("邮件大小：" + msg.getSize() * 1024 + "kb");  
-            boolean isContainerAttachment = isContainAttachment(msg);  
-            System.out.println("是否包含附件：" + isContainerAttachment);  
-            if (isContainerAttachment) {  
+        for (int i = 0, count = messages.size(); i < count; i++) {  
+            MimeMessage msg = (MimeMessage) messages.get(i);  
+            //buildEmlFile(msg, i);
+            Mail mail = new Mail();
+            mail.setEmailAddress(account.getEmailAddress());
+            mail.setMailNumber(msg.getMessageNumber());
+            mail.setSubject(getSubject(msg));
+            mail.setFrom(getFrom(msg));
+            mail.setReceiveAddress(getReceiveAddress(msg, null));
+            mail.setSendDate(getSentDate(msg, "yyyy-MM-dd HH:mm"));
+            mail.setSeen(isSeen(msg));	//邮件是否已经查看
+            mail.setPriority(getPriority(msg));	//邮件的优先级
+            mail.setReplySign(isReplySign(msg));//是否需要回执
+            mail.setMailSize(msg.getSize());
+            mail.setContainerAttachment(isContainAttachment(msg));
+            mail.setMessage(msg);
+           /* if (isContainerAttachment) {  
                 saveAttachment(msg, "e:\\mailtmp\\" + getString(getSubject(msg))); //保存附件  
-            }   
-            StringBuilder content = new StringBuilder();
+            }  */ 
             try {
+            	StringBuilder content = new StringBuilder();
 				getMailTextContent(msg, content);
+				mail.setContent(content.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
-			}  
-            System.out.println("邮件正文：" + (content.length() > 100 ? content.substring(0,100) + "..." : content));  
-            System.out.println("------------------第" + msg.getMessageNumber() + "封邮件解析结束-------------------- ");  
-            System.out.println();  
+			} 
+            mail.getAttachments().clear();
+            getAttachmentList(mail, msg);
+            mailDao.add(mail);
         }  
     }
     
@@ -367,7 +427,7 @@ public class ReceiveMail {
                 BodyPart bodyPart = multipart.getBodyPart(i);  
                 //某一个邮件体也有可能是由多个邮件体组成的复杂体  
                 String disp = bodyPart.getDisposition();  
-                if (disp != null && (disp.equalsIgnoreCase(Part.ATTACHMENT) || disp.equalsIgnoreCase(Part.INLINE))) {  
+                if (disp != null && (disp.equalsIgnoreCase(Part.ATTACHMENT) || disp.equalsIgnoreCase(Part.INLINE))) {
                     InputStream is = bodyPart.getInputStream();  
                     saveFile(is, destDir, decodeText(bodyPart.getFileName()));  
                 } else if (bodyPart.isMimeType("multipart/*")) {  
@@ -385,6 +445,59 @@ public class ReceiveMail {
     }
     
     /**  
+     * 保存附件  
+     * @param part 邮件中多个组合体中的其中一个组合体  
+     * @param destDir  附件保存目录  
+     * @throws UnsupportedEncodingException  
+     * @throws MessagingException  
+     * @throws FileNotFoundException  
+     * @throws IOException  
+     */  
+    public void getAttachmentList(Mail mail, Part part) throws UnsupportedEncodingException, MessagingException,  
+    FileNotFoundException, IOException { 
+    	if(attachmentDao == null) {
+    		attachmentDao = new AttachmentDao(context);
+    	}
+    	if (part.isMimeType("multipart/*")) {  
+    		Multipart multipart = (Multipart) part.getContent();    //复杂体邮件  
+    		//复杂体邮件包含多个邮件体  
+    		int partCount = multipart.getCount();  
+    		for (int i = 0; i < partCount; i++) {  
+    			//获得复杂体邮件中其中一个邮件体  
+    			BodyPart bodyPart = multipart.getBodyPart(i);  
+    			//某一个邮件体也有可能是由多个邮件体组成的复杂体  
+    			String disp = bodyPart.getDisposition();  
+    			if (disp != null && (disp.equalsIgnoreCase(Part.ATTACHMENT) || disp.equalsIgnoreCase(Part.INLINE))) {
+    				Attachment att = new Attachment();
+    				att.setEmailAddress(mail.getEmailAddress());
+    				att.setEmailNumber(mail.getMailNumber());
+    				att.setFileName(decodeText(bodyPart.getFileName()));
+    				att.setFileSize(bodyPart.getSize());
+    				mail.getAttachments().add(att);
+    				attachmentDao.add(att);
+    				//InputStream is = bodyPart.getInputStream();  
+    				//saveFile(is, destDir, decodeText(bodyPart.getFileName()));  
+    			} else if (bodyPart.isMimeType("multipart/*")) {  
+    				getAttachmentList(mail, bodyPart);  
+    			} else {  
+    				String contentType = bodyPart.getContentType();  
+    				if (contentType.indexOf("name") != -1 || contentType.indexOf("application") != -1) {
+    					Attachment att = new Attachment();
+        				att.setEmailAddress(mail.getEmailAddress());
+        				att.setEmailNumber(mail.getMailNumber());
+        				att.setFileName(decodeText(bodyPart.getFileName()));
+        				att.setFileSize(bodyPart.getSize());
+        				mail.getAttachments().add(att);
+    					//saveFile(bodyPart.getInputStream(), destDir, decodeText(bodyPart.getFileName()));  
+    				}  
+    			}  
+    		}  
+    	} else if (part.isMimeType("message/rfc822")) {  
+    		getAttachmentList(mail, (Part) part.getContent());  
+    	}  
+    }
+    
+    /**  
      * 读取输入流中的数据保存至指定目录  
      * @param is 输入流  
      * @param fileName 文件名  
@@ -392,7 +505,7 @@ public class ReceiveMail {
      * @throws FileNotFoundException  
      * @throws IOException  
      */  
-    private static void saveFile(InputStream is, String destDir, String fileName) throws IOException {  
+    private static File saveFile(InputStream is, String destDir, String fileName) throws IOException {  
     	File dir = new File(destDir);
     	fileName = getString(fileName);
     	if(!dir.exists()) {
@@ -401,19 +514,21 @@ public class ReceiveMail {
         BufferedInputStream bis = new BufferedInputStream(is);  
         BufferedOutputStream bos = null;
 		try {
+			File saveFile = new File(destDir, fileName);
 			bos = new BufferedOutputStream(  
-			        new FileOutputStream(new File(destDir, fileName)));
+			        new FileOutputStream(saveFile));
 			int len = -1;  
 	        while ((len = bis.read()) != -1) {  
 	            bos.write(len);  
 	            bos.flush();  
 	        }  
 	        bos.close();  
-	        bis.close();  
+	        bis.close();
+	        return saveFile;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}  
-        
+        return null;
     }
     
     /** 

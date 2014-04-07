@@ -1,8 +1,11 @@
 package com.example.testemail.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.example.testemail.util.MailServerUtil;
 
-public class MailAccount {
+public class MailAccount implements Parcelable {
 	private String username;
 	private String password;
 	private String emailAddress;
@@ -16,6 +19,18 @@ public class MailAccount {
 			mailInfo = MailServerUtil.getMailInfo(mailType);
 		}
 		return mailInfo;
+	}
+	
+	public MailAccount() {
+	}
+
+	public MailAccount(Parcel source) {
+		username = source.readString();
+		password = source.readString();
+		emailAddress = source.readString();
+		mailType = source.readString();
+		resId = source.readInt();
+		unReadCount = source.readInt();
 	}
 
 	public int getUnReadCount() {
@@ -70,4 +85,33 @@ public class MailAccount {
 	public void setResId(int resId) {
 		this.resId = resId;
 	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(username);
+		dest.writeString(password);
+		dest.writeString(emailAddress);
+		dest.writeString(mailType);
+		dest.writeInt(resId);
+		dest.writeInt(unReadCount);
+	}
+	
+	public static final Parcelable.Creator<MailAccount> CREATOR = new Creator<MailAccount>() {
+		
+		@Override
+		public MailAccount[] newArray(int size) {
+			return new MailAccount[size];
+		}
+		
+		@Override
+		public MailAccount createFromParcel(Parcel source) {
+			return new MailAccount(source);
+		}
+	};
 }

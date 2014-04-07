@@ -8,9 +8,9 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
 
-import com.example.testemail.R.string;
 import com.example.testemail.dao.MailAccountDao;
 import com.example.testemail.model.MailAccount;
+import com.example.testemail.service.ReceiveMailService;
 import com.example.testemail.util.MailServerUtil;
 import com.example.testemail.util.ThreadPool;
 
@@ -23,7 +23,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -34,6 +33,10 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 	private static final String TAG = "MainActivity";
 	private Context mContext;
+
+	public static final String ACTION_FLAG = "action_flag";
+	public static final int ACTION_FLAG_LIST = 100;
+	public static final int ACTION_FLAG_ADD = 101;
 	
 	private AutoCompleteTextView etAddress;
 	private EditText etPassword;
@@ -72,8 +75,10 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		MailAccountDao accountDao = new MailAccountDao(this);
-		if(accountDao.hasMailAccount()) {
-			Intent intent = new Intent(this, AcccountListActivity.class);
+		Intent intent = getIntent();
+		int flag = intent.getIntExtra(ACTION_FLAG, ACTION_FLAG_LIST);
+		if(flag == ACTION_FLAG_LIST && accountDao.hasMailAccount()) {
+			intent = new Intent(this, AcccountListActivity.class);
 			startActivity(intent);
 			finish();
 		} else {
@@ -188,13 +193,18 @@ public class MainActivity extends Activity {
 				Store store = null;
 				Message msg = handler.obtainMessage();
 				try {
-					store = login(account);
+					store = MailServerUtil.login(account);
 					pDialog.dismiss();
 					if(store != null) {	//登录成功
 						MailAccountDao accountDao = new MailAccountDao(mContext);
 						Folder folder = store.getFolder(MailServerUtil.INBOX);
 						account.setUnReadCount(folder.getUnreadMessageCount());
 						accountDao.add(account);
+						Intent service = new Intent(mContext, ReceiveMailService.class);
+						service.putExtra("mailAccount", account);
+						service.putExtra("pageNum", 1);
+						service.putExtra("pageSize", MailServerUtil.PAGE_SIZE);
+						startService(service);
 						msg.what = 1;
 						handler.sendMessage(msg);
 					} else {
@@ -212,27 +222,6 @@ public class MainActivity extends Activity {
 				
 			}
 		});
-	}
-	
-	private Store login(MailAccount account) throws MessagingException {
-		Session session = MailServerUtil.validateAccount(account);
-		if(session == null) {
-			return null;
-		}
-		Store store = session.getStore();
-		store.connect();
-		if(!store.isConnected()) {
-			store = null;
-		}
-		return store;
-		
-	}
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
 	}
 	
 }
