@@ -40,6 +40,30 @@ public class AttachmentDao {
 		}
 	}
 	
+	public boolean isAttEsists(Attachment att) {
+		String sql = "select count(_id) from t_attachment where emailAddress = ? and emailNumber = ? and fileName = ?";
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		String[] args = {att.getEmailAddress(), String.valueOf(att.getEmailNumber()), att.getFileName()};
+		Cursor cursor = null;
+		int count;
+		try {
+			cursor = db.rawQuery(sql, args);
+			cursor.moveToFirst();
+			count = cursor.getInt(0);
+			if(count > 0) {	//已经存在
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(cursor != null) {
+				cursor.close();
+			}
+			db.close();
+		}
+		return false;
+	}
+	
 	public List<Attachment> getAttachments(Mail mail) {
 		/*
 		 * sql = "insert into t_attachment (fileSize, emailNumber, emailAddress, fileName) values (?, ?, ?, ?)";
