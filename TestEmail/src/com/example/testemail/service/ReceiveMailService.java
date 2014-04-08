@@ -33,22 +33,24 @@ public class ReceiveMailService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		final MailAccount mailAccount = intent.getParcelableExtra("mailAccount");
-		final int pageNum = intent.getIntExtra("pageNum", 1);
-		final int pageSize = intent.getIntExtra("pageSize", MailServerUtil.PAGE_SIZE);
-		ThreadPool.getCachedPool().execute(new Runnable() {
-			
-			@Override
-			public void run() {
-				try {
-					ReceiveMailUtil.getInstance(mContext).receive(mailAccount, pageNum, pageSize);
-				} catch (MessagingException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
+		if(intent != null) {
+			final MailAccount mailAccount = intent.getParcelableExtra("mailAccount");
+			final int pageNum = intent.getIntExtra("pageNum", 1);
+			final int pageSize = intent.getIntExtra("pageSize", MailServerUtil.PAGE_SIZE);
+			ThreadPool.getCachedPool().execute(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						ReceiveMailUtil.getInstance(mContext).receive(mailAccount, pageNum, pageSize);
+					} catch (MessagingException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
-			}
-		});
+			});
+		}
 		return super.onStartCommand(intent, flags, startId);
 	}
 

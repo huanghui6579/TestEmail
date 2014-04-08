@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
 			switch (msg.what) {
 			case 1:	//登录成功
 				makeShortToast("登录成功");
-				Intent intent = new Intent(mContext, AcccountListActivity.class);
+				Intent intent = new Intent(mContext, AccountListActivity.class);
 				startActivity(intent);
 				finish();
 				break;
@@ -78,7 +78,7 @@ public class MainActivity extends Activity {
 		Intent intent = getIntent();
 		int flag = intent.getIntExtra(ACTION_FLAG, ACTION_FLAG_LIST);
 		if(flag == ACTION_FLAG_LIST && accountDao.hasMailAccount()) {
-			intent = new Intent(this, AcccountListActivity.class);
+			intent = new Intent(this, AccountListActivity.class);
 			startActivity(intent);
 			finish();
 		} else {

@@ -23,21 +23,44 @@ public class AttachmentDao {
 	
 	public void add(Attachment att) {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		db.beginTransaction();
+		if (!isAttEsists(db, att)) {
+			db.beginTransaction();
+			try {
+				ContentValues values = new ContentValues();
+				values.put("fileSize", att.getFileSize());
+				values.put("emailNumber", att.getEmailNumber());
+				values.put("emailAddress", att.getEmailAddress());
+				values.put("fileName", att.getFileName());
+				db.replace("t_attachment", null, values);
+				db.setTransactionSuccessful();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				db.endTransaction();
+				db.close();
+			}
+		}
+	}
+	
+	public boolean isAttEsists(SQLiteDatabase db, Attachment att) {
+		String sql = "select count(_id) from t_attachment where emailAddress = ? and emailNumber = ? and fileName = ?";
+		String[] args = {att.getEmailAddress(), String.valueOf(att.getEmailNumber()), att.getFileName()};
+		Cursor cursor = null;
 		try {
-			ContentValues values = new ContentValues();
-			values.put("fileSize", att.getFileSize());
-			values.put("emailNumber", att.getEmailNumber());
-			values.put("emailAddress", att.getEmailAddress());
-			values.put("fileName", att.getFileName());
-			db.replace("t_attachment", null, values);
-			db.setTransactionSuccessful();
-		} catch (SQLException e) {
+			cursor = db.rawQuery(sql, args);
+			cursor.moveToFirst();
+			int count = cursor.getInt(0);
+			if(count > 0) {	//已经存在
+				return true;
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			db.endTransaction();
-			db.close();
+			if(cursor != null) {
+				cursor.close();
+			}
 		}
+		return false;
 	}
 	
 	public List<Attachment> getAttachments(Mail mail) {

@@ -25,7 +25,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.testemail.AcccountListActivity"></activity>
+        <activity android:name="com.example.testemail.AccountListActivity"></activity>
         <activity android:name="com.example.testemail.MailListActivity"></activity>
         
         <service android:name="com.example.testemail.service.ReceiveMailService"></service>
