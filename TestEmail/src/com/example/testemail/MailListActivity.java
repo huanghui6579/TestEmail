@@ -80,11 +80,11 @@ public class MailListActivity extends Activity {
 		
 		new LoadMailTask().execute(pageNum);
 		
-		Intent service = new Intent(mContext, ReceiveMailService.class);
+		/*Intent service = new Intent(mContext, ReceiveMailService.class);
 		service.putExtra("mailAccount", mailAccount);
 		service.putExtra("pageNum", 1);
 		service.putExtra("pageSize", MailServerUtil.PAGE_SIZE);
-		startService(service);
+		startService(service);*/
 	}
 	
 	class LoadMailTask extends AsyncTask<Integer, Mail, List<Mail>> {
