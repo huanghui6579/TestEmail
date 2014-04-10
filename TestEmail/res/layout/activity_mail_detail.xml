@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <ScrollView 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical"
+	        android:padding="@dimen/list_view_padding_left">
+		    <!-- 主题 -->
+		    <LinearLayout 
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal"
+		        android:gravity="center_vertical">
+		        <TextView
+		            android:id="@+id/tv_subject"
+		            android:layout_width="0dp"
+		            android:layout_height="wrap_content"
+		            android:layout_weight="4"
+		            style="@style/MailTitleText"
+		            android:text="fdsf"/>
+		        <TextView
+		            android:id="@+id/tv_sendDate"
+		            android:layout_width="0dp"
+		            android:layout_height="wrap_content"
+		            android:layout_weight="1"
+		            android:gravity="right|center_vertical"
+		            android:text="fdfgf"/>
+		    </LinearLayout>
+		    
+		    <!-- 发件人 -->
+		    <LinearLayout 
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal"
+		        android:gravity="center_vertical">
+		        <TextView
+		            android:id="@+id/tv_fromPerson"
+		            android:layout_width="0dp"
+		            android:layout_height="wrap_content"
+		            android:layout_weight="4"
+		            android:textSize="@dimen/mail_title_size"
+			        android:textColor="@color/mail_title_gray"
+		            android:text="fdsfdsfewf"/>
+		        <ImageView 
+		            android:id="@+id/iv_att_flag"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:src="@drawable/icon_att"/>
+		    </LinearLayout>
+		    
+		    <!-- 收件人 -->
+		    <LinearLayout
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal"
+		        android:gravity="center_vertical">
+		        <TextView
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            style="@style/MailTitleText"
+		            android:text="@string/mail_receiver"/>
+		        <TextView 
+		            android:id="@+id/tv_mail_receiver"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:paddingLeft="@dimen/list_view_padding_left"
+		            android:text="fdgfdgfdgfhgfhertyrrehy123dgfdgfdg123123"/>
+		    </LinearLayout>
+		    
+		    <!-- 抄送人 -->
+		    <LinearLayout
+		        android:id="@+id/linear_cc"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal"
+		        android:gravity="center_vertical">
+		        <TextView
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            style="@style/MailTitleText"
+		            android:text="@string/mail_cc"/>
+		        <TextView 
+		            android:id="@+id/tv_mail_cc"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:paddingLeft="@dimen/list_view_padding_left"
+		            android:text="fdgfdgfdgfhgfhertyrrehy123dgfdgfdg123123"/>
+		    </LinearLayout>
+		    
+		    <!-- 密送人 -->
+		    <LinearLayout
+		        android:id="@+id/linear_bcc"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal"
+		        android:gravity="center_vertical">
+		        <TextView
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            style="@style/MailTitleText"
+		            android:text="@string/mail_bcc"/>
+		        <TextView 
+		            android:id="@+id/tv_mail_bcc"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:paddingLeft="@dimen/list_view_padding_left"
+		            android:text="fdgfdgfdgfhgfhertyrrehy123dgfdgfdg123123"/>
+		    </LinearLayout>
+		    
+		    <WebView 
+		        android:id="@+id/wb_content"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"/>
+		</LinearLayout>
+    </ScrollView>
+</LinearLayout>

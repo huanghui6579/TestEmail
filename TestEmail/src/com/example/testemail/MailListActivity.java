@@ -10,12 +10,14 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,8 +71,10 @@ public class MailListActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				// TODO Auto-generated method stub
-				
+				Mail mail = mails.get(position);
+				Intent intent = new Intent(mContext, MailDetailActivity.class);
+				intent.putExtra("mail", mail);
+				startActivity(intent);
 			}
 		});
 		
@@ -139,6 +143,7 @@ public class MailListActivity extends Activity {
 				holder.tvSendDate = (TextView) convertView.findViewById(R.id.tv_sendDate);
 				holder.tvDesc = (TextView) convertView.findViewById(R.id.tv_desc);
 				holder.ivReadFlag = (ImageView) convertView.findViewById(R.id.iv_read_flag);
+				holder.ivAttFlag = (ImageView) convertView.findViewById(R.id.iv_att_flag);
 				convertView.setTag(holder);
 			} else {
 				holder = (ViewHolder) convertView.getTag();
@@ -169,6 +174,11 @@ public class MailListActivity extends Activity {
 				ss.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.mail_title_gray)), 0, from.length() - 1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
 			}
 			holder.tvDesc.setText(ss);
+			if(mail.isContainerAttachment()) {
+				holder.ivAttFlag.setVisibility(View.VISIBLE);
+			} else {
+				holder.ivAttFlag.setVisibility(View.GONE);
+			}
 			return convertView;
 		}
 		
@@ -179,5 +189,6 @@ public class MailListActivity extends Activity {
 		TextView tvSendDate;
 		TextView tvDesc;
 		ImageView ivReadFlag;
+		ImageView ivAttFlag;
 	}
 }

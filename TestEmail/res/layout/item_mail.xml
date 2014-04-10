@@ -25,15 +25,24 @@
 	            android:id="@+id/tv_sendDate"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:layout_alignParentRight="true"
-	            android:layout_centerVertical="true"/>
+	            android:layout_centerVertical="true"
+	            android:layout_alignParentRight="true"/>
+	        <ImageView 
+	            android:id="@+id/iv_att_flag"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_centerVertical="true"
+	            android:layout_toLeftOf="@id/tv_sendDate"
+	            android:src="@drawable/icon_att"
+	            android:layout_marginRight="@dimen/list_view_padding_left"
+	            android:visibility="gone"/>
 	        <TextView 
 	            android:id="@+id/tv_title"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	            android:textSize="@dimen/mail_title_size"
 	            android:textColor="@color/mail_title_gray"
-	            android:layout_toLeftOf="@id/tv_sendDate"
+	            android:layout_toLeftOf="@id/iv_att_flag"
 	            android:layout_centerVertical="true"/>
 	        
 	    </RelativeLayout>

@@ -9,5 +9,9 @@
     
     <string name="add">添加</string>
     <string name="refresh">刷新</string>
+    
+    <string name="mail_receiver">收件人:</string>
+    <string name="mail_cc">抄送人:</string>
+    <string name="mail_bcc">密送人:</string>
 
 </resources>
