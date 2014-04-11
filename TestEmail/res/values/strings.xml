@@ -13,5 +13,8 @@
     <string name="mail_receiver">收件人:</string>
     <string name="mail_cc">抄送人:</string>
     <string name="mail_bcc">密送人:</string>
+    
+    <string name="loading_more">点击加载更多</string>
+    <string name="loading">正在加载...</string>
 
 </resources>

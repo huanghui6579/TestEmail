@@ -15,6 +15,8 @@ public class Mail implements Parcelable {
 	private String fromAddress;	//发件人地址
 	private String fromName;	//发件人名称
 	private String receiveAddress;	//收件人地址
+	private String ccAddress;	//抄送人地址
+	private String bccAddress;	//暗送人地址
 	private String sendDate;	//发送日期
 	private String priority;	//邮件优先级
 	private String content;	//邮件正文
@@ -148,6 +150,22 @@ public class Mail implements Parcelable {
 		this.message = message;
 	}
 
+	public String getCcAddress() {
+		return ccAddress;
+	}
+
+	public void setCcAddress(String ccAddress) {
+		this.ccAddress = ccAddress;
+	}
+
+	public String getBccAddress() {
+		return bccAddress;
+	}
+
+	public void setBccAddress(String bccAddress) {
+		this.bccAddress = bccAddress;
+	}
+
 	public Mail(Parcel source) {
 		mailNumber = source.readInt();
 		mailSize = source.readLong();
@@ -155,6 +173,8 @@ public class Mail implements Parcelable {
 		fromAddress = source.readString();
 		fromName = source.readString();
 		receiveAddress = source.readString();
+		ccAddress = source.readString();
+		bccAddress = source.readString();
 		sendDate = source.readString();
 		priority = source.readString();
 		content = source.readString();
@@ -176,6 +196,8 @@ public class Mail implements Parcelable {
 		dest.writeString(fromAddress);
 		dest.writeString(fromName);
 		dest.writeString(receiveAddress);
+		dest.writeString(ccAddress);
+		dest.writeString(bccAddress);
 		dest.writeString(sendDate);
 		dest.writeString(priority);
 		dest.writeString(content);

@@ -26,6 +26,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.testemail.dao.MailDao;
 import com.example.testemail.model.Mail;
@@ -62,6 +63,18 @@ public class MailListActivity extends Activity {
 		lvMails = (ListView) findViewById(R.id.listview);
 		
 		mails = new ArrayList<Mail>();
+		
+		LayoutInflater inflater = getLayoutInflater();
+		View footer = inflater.inflate(R.layout.list_footer, null, false);
+		lvMails.addFooterView(footer);
+		footer.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Toast.makeText(mContext, "点击了底部", Toast.LENGTH_SHORT).show();
+			}
+		});
 		
 		adapter = new MailAdapter(mContext, mails);
 		lvMails.setAdapter(adapter);
@@ -152,26 +165,28 @@ public class MailListActivity extends Activity {
 			Mail mail = list.get(position);
 			holder.tvSendDate.setText(StringUtil.parseDateStr(mail.getSendDate(), null, null));
 			String from = ">>";
-			from += mail.getFromName();
-			if(StringUtil.isEmpty(from)) {
-				from = mail.getFromAddress();
+			String fromName = mail.getFromName();
+			if(StringUtil.isEmpty(fromName)) {
+				from += mail.getFromAddress();
+			} else {
+				from += fromName;
 			}
 			Spanned spanned = Html.fromHtml(mail.getContent());
 			SpannableString ss = new SpannableString(from + spanned);
-			ss.setSpan(new RelativeSizeSpan(1.2f), 0, from.length() - 1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+			ss.setSpan(new RelativeSizeSpan(1.2f), 0, from.length(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
 			String title = mail.getSubject();
 			if(!mail.isSeen()) {
 				SpannableString titleSs = new SpannableString(title);
 				titleSs.setSpan(new StyleSpan(Typeface.BOLD), 0, titleSs.length() - 1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
 				holder.tvTitle.setTextColor(getResources().getColor(R.color.black));
 				holder.tvTitle.setText(titleSs);
-				ss.setSpan(new StyleSpan(Typeface.BOLD), 0, from.length() - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-				ss.setSpan(new ForegroundColorSpan(Color.BLACK), 0, from.length() - 1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+				ss.setSpan(new StyleSpan(Typeface.BOLD), 0, from.length(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+				ss.setSpan(new ForegroundColorSpan(Color.BLACK), 0, from.length(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
 				holder.ivReadFlag.setBackgroundResource(R.drawable.mail_unread);
 			} else {
 				holder.tvTitle.setText(title);
 				holder.ivReadFlag.setBackgroundResource(R.drawable.mail_readed);
-				ss.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.mail_title_gray)), 0, from.length() - 1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+				ss.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.mail_title_gray)), 0, from.length(), Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
 			}
 			holder.tvDesc.setText(ss);
 			if(mail.isContainerAttachment()) {

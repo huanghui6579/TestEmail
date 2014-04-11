@@ -68,13 +68,11 @@ public class ReceiveMailUtil {
 	
 	private AttachmentDao attachmentDao = null;
 	private MailDao mailDao = null;
-	private MailAccountDao accountDao = null;
 	
 	private ReceiveMailUtil(Context context) {
 		this.context = context;
 		attachmentDao = new AttachmentDao(context);
 		mailDao = new MailDao(context);
-		accountDao = new MailAccountDao(context);
 	}
 	
 	private ReceiveMailUtil() {}
@@ -121,11 +119,6 @@ public class ReceiveMailUtil {
 			if(store != null & store.isConnected()) {
 				Folder folder = store.getFolder(MailServerUtil.INBOX);
 				folder.open(Folder.READ_ONLY);
-				account.setUnReadCount(folder.getUnreadMessageCount());
-				if(accountDao == null) {
-					accountDao = new MailAccountDao(context);
-				}
-				accountDao.update(account);
 				// 得到收件箱中的所有邮件,并解析  
 				parseMessage(account, getMessagesWithPage(folder, pageNum, pageSize));  
 				
@@ -153,7 +146,7 @@ public class ReceiveMailUtil {
 		});
 		List<Message> list = Arrays.asList(messages);
 		int start = (pageNum - 1) * pageSize;
-		int end = pageNum * pageSize - 1;
+		int end = pageNum * pageSize;
 		return list.subList(start, end);
 	}
 	
@@ -177,7 +170,9 @@ public class ReceiveMailUtil {
             mail.setSubject(getSubject(msg));
             mail.setFromAddress(getFromAddress(msg));
             mail.setFromName(getFromName(msg));
-            mail.setReceiveAddress(getReceiveAddress(msg, null));
+            mail.setReceiveAddress(getReceiveAddress(msg, Message.RecipientType.TO));
+            mail.setCcAddress(getReceiveAddress(msg, Message.RecipientType.CC));
+            mail.setBccAddress(getReceiveAddress(msg, Message.RecipientType.BCC));
             mail.setSendDate(getSentDate(msg, "yyyy-MM-dd HH:mm:ss"));
             mail.setSeen(isSeen(msg));	//邮件是否已经查看
             mail.setPriority(getPriority(msg));	//邮件的优先级
@@ -303,21 +298,21 @@ public class ReceiveMailUtil {
         StringBuilder receiveAddress = new StringBuilder();  
         Address[] addresss = null;  
         if (type == null) {  
-            addresss = msg.getAllRecipients();  
+            addresss = msg.getAllRecipients(); 
         } else {  
             addresss = msg.getRecipients(type);  
         }  
+        if(addresss != null && addresss.length > 0) {
+	        for (Address address : addresss) {  
+	            InternetAddress internetAddress = (InternetAddress)address;  
+	            receiveAddress.append(internetAddress.toUnicodeString()).append(",");  
+	        }  
+	        receiveAddress.deleteCharAt(receiveAddress.length()-1); //删除最后一个逗号  
+	        return receiveAddress.toString();  
+        } else {
+        	return null;
+        }
           
-        if (addresss == null || addresss.length < 1)  
-            throw new MessagingException("没有收件人!");  
-        for (Address address : addresss) {  
-            InternetAddress internetAddress = (InternetAddress)address;  
-            receiveAddress.append(internetAddress.toUnicodeString()).append(",");  
-        }  
-          
-        receiveAddress.deleteCharAt(receiveAddress.length()-1); //删除最后一个逗号  
-          
-        return receiveAddress.toString();  
     }
     
     /** 

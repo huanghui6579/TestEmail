@@ -22,7 +22,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class AcccountListActivity extends Activity {
+public class AccountListActivity extends Activity {
 	private ListView lvAccounts;
 	private List<MailAccount> accounts;
 	private Context mContext;

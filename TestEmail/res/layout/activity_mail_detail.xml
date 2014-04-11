@@ -57,6 +57,7 @@
 		    
 		    <!-- 收件人 -->
 		    <LinearLayout
+		        android:id="@+id/linear_receiver"
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
 		        android:orientation="horizontal"

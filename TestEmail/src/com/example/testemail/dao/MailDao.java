@@ -32,6 +32,8 @@ public class MailDao {
 			values.put("fromAddress", mail.getFromAddress());
 			values.put("fromName", mail.getFromName());
 			values.put("receiveAddress", mail.getReceiveAddress());
+			values.put("ccAddress", mail.getCcAddress());
+			values.put("bccAddress", mail.getBccAddress());
 			values.put("sendDate", mail.getSendDate());
 			values.put("priority", mail.getPriority());
 			values.put("content", mail.getContent());
@@ -73,6 +75,8 @@ public class MailDao {
 				mail.setFromAddress(cursor.getString(cursor.getColumnIndex("fromAddress")));
 				mail.setFromName(cursor.getString(cursor.getColumnIndex("fromName")));
 				mail.setReceiveAddress(cursor.getString(cursor.getColumnIndex("receiveAddress")));
+				mail.setCcAddress(cursor.getString(cursor.getColumnIndex("ccAddress")));
+				mail.setBccAddress(cursor.getString(cursor.getColumnIndex("bccAddress")));
 				mail.setSendDate(cursor.getString(cursor.getColumnIndex("sendDate")));
 				mail.setPriority(cursor.getString(cursor.getColumnIndex("priority")));
 				mail.setContent(cursor.getString(cursor.getColumnIndex("content")));
