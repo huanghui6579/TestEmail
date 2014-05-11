@@ -45,13 +45,13 @@ public class ReceiveMailUtil {
 //	public static void main(String[] args) {
 //		MailAccount account = new MailAccount();
 //		account.setUsername("huanghui6579@gmail.com");
-//		account.setPassword("hui14795719");
+//		account.setPassword("xxxxx");
 //		account.setUsername("409384897@qq.com");
-//		account.setPassword("huanghui");
+//		account.setPassword("xxxxx");
 //		account.setUsername("huanghui6579@sohu.com");
-//		account.setPassword("hui14795719");
+//		account.setPassword("xxxxx");
 //		account.setUsername("huanghui6579@163.com");
-//		account.setPassword("hui9114795719");
+//		account.setPassword("xxxxx");
 //		try {
 //			receive(account);
 //		} catch (MessagingException e) {
