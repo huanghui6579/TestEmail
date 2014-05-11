@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -25,7 +24,6 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
-import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -35,7 +33,6 @@ import javax.mail.internet.MimeUtility;
 import android.content.Context;
 
 import com.example.testemail.dao.AttachmentDao;
-import com.example.testemail.dao.MailAccountDao;
 import com.example.testemail.dao.MailDao;
 import com.example.testemail.model.Attachment;
 import com.example.testemail.model.Mail;
@@ -504,7 +501,7 @@ public class ReceiveMailUtil {
     		int partCount = multipart.getCount();  
     		for (int i = 0; i < partCount; i++) {  
     			//获得复杂体邮件中其中一个邮件体  
-    			BodyPart bodyPart = multipart.getBodyPart(i);  
+    			BodyPart bodyPart = multipart.getBodyPart(i);
     			//某一个邮件体也有可能是由多个邮件体组成的复杂体  
     			String disp = bodyPart.getDisposition();  
     			if (disp != null && (disp.equalsIgnoreCase(Part.ATTACHMENT) || disp.equalsIgnoreCase(Part.INLINE))) {
